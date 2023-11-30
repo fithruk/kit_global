@@ -18,7 +18,8 @@ const login = async (auth: Auth): Promise<User | undefined> => {
   try {
     return (await signInWithPopup(auth, provider)).user;
   } catch (error) {
-    alert("Somethink went wrong...");
+    console.error("Ошибка при авторизации:", error);
+    alert("Произошла ошибка приавторизации. Пожалуйста, попробуйте еще раз.");
   }
 };
 
@@ -31,7 +32,10 @@ const addNewPost = async (
       ...userData,
     });
   } catch (error) {
-    console.log("error");
+    console.error("Ошибка при добавлении нового поста:", error);
+    alert(
+      "Произошла ошибка при добавлении нового поста. Пожалуйста, попробуйте еще раз."
+    );
   }
 };
 
@@ -48,7 +52,10 @@ const loadAllPosts = async (firestore: RootState) => {
 
     return posts;
   } catch (error) {
-    console.log("error");
+    console.error("Ошибка при загрузке постов:", error);
+    alert(
+      "Произошла ошибка при загрузке постов. Пожалуйста, попробуйте еще раз."
+    );
   }
 };
 
@@ -67,7 +74,10 @@ const loadOnePost = async (
       console.log("No such document!");
     }
   } catch (error) {
-    console.log("error");
+    console.error("Ошибка при загрузке поста:", error);
+    alert(
+      "Произошла ошибка при загрузке поста. Пожалуйста, попробуйте еще раз."
+    );
   }
 };
 
@@ -80,7 +90,10 @@ const updateExistPost = async (
     const docRef = doc(firestore.firebaseReducer.firestore, "posts", id);
     await updateDoc(docRef, userData);
   } catch (error) {
-    console.log("error while update");
+    console.error("Ошибка при обновлении поста:", error);
+    alert(
+      "Произошла ошибка при обновлении поста. Пожалуйста, попробуйте еще раз."
+    );
   }
 };
 
@@ -93,7 +106,10 @@ const removeExistingPost = async (
 
     await deleteDoc(docRef);
   } catch (error) {
-    console.log("Error while deleting post");
+    console.error("Ошибка при удалении поста:", error);
+    alert(
+      "Произошла ошибка при удалении поста. Пожалуйста, попробуйте еще раз."
+    );
   }
 };
 
