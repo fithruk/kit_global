@@ -1,10 +1,20 @@
-import { Auth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { collection, addDoc, getDocs, getDoc, doc } from "firebase/firestore";
+import { Auth, GoogleAuthProvider, User, signInWithPopup } from "firebase/auth";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  DocumentData,
+} from "firebase/firestore";
 import { RootState } from "../Reducers/RootReducer/RootReducer";
 import { FormType } from "../FormComponent/FormComponent";
+import { PostType } from "../Reducers/PostsReducer/PostsReducer";
 
-const login = async (auth: Auth) => {
-  const provider = new GoogleAuthProvider();
+const login = async (auth: Auth): Promise<User | undefined> => {
+  const provider: GoogleAuthProvider = new GoogleAuthProvider();
   try {
     return (await signInWithPopup(auth, provider)).user;
   } catch (error) {
@@ -12,14 +22,14 @@ const login = async (auth: Auth) => {
   }
 };
 
-const addNewPost = async (firestore: RootState, userData: FormType) => {
+const addNewPost = async (
+  firestore: RootState,
+  userData: FormType
+): Promise<void> => {
   try {
-    const docRef = await addDoc(
-      collection(firestore.firebaseReducer.firestore, "posts"),
-      {
-        ...userData,
-      }
-    );
+    await addDoc(collection(firestore.firebaseReducer.firestore, "posts"), {
+      ...userData,
+    });
   } catch (error) {
     console.log("error");
   }
@@ -30,17 +40,22 @@ const loadAllPosts = async (firestore: RootState) => {
     const querySnapshot = await getDocs(
       collection(firestore.firebaseReducer.firestore, "posts")
     );
-    const posts: any = [];
+    const posts: PostType[] = [];
     querySnapshot.forEach((doc) => {
-      posts.push({ id: doc.id, data: doc.data() });
+      posts.push({ id: doc.id, data: doc.data() as FormType });
     });
+    console.log(posts);
+
     return posts;
   } catch (error) {
     console.log("error");
   }
 };
 
-const loadOnePost = async (firestore: RootState, id: string) => {
+const loadOnePost = async (
+  firestore: RootState,
+  id: string
+): Promise<DocumentData | undefined> => {
   try {
     const docSnap = await getDoc(
       doc(firestore.firebaseReducer.firestore, "posts", id)
@@ -55,4 +70,38 @@ const loadOnePost = async (firestore: RootState, id: string) => {
     console.log("error");
   }
 };
-export { login, addNewPost, loadAllPosts, loadOnePost };
+
+const updateExistPost = async (
+  firestore: RootState,
+  id: string,
+  userData: FormType
+): Promise<void> => {
+  try {
+    const docRef = doc(firestore.firebaseReducer.firestore, "posts", id);
+    await updateDoc(docRef, userData);
+  } catch (error) {
+    console.log("error while update");
+  }
+};
+
+const removeExistingPost = async (
+  firestore: RootState,
+  id: string
+): Promise<void> => {
+  try {
+    const docRef = doc(firestore.firebaseReducer.firestore, "posts", id);
+
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.log("Error while deleting post");
+  }
+};
+
+export {
+  login,
+  addNewPost,
+  loadAllPosts,
+  loadOnePost,
+  updateExistPost,
+  removeExistingPost,
+};

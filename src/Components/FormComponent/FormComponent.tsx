@@ -5,12 +5,18 @@ import {
   Typography,
   TextareaAutosize,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useState } from "react";
 import { User } from "../Reducers/UserReducer/UserReducer";
-import { createNewPost } from "../Reducers/PostsReducer/PostsActions";
+import {
+  createNewPost,
+  removePost,
+  updatePost,
+} from "../Reducers/PostsReducer/PostsActions";
 
 import { useDispatch } from "react-redux";
+import { AppDispatch } from "../Reducers/Store/Store";
 
 const FormSchema = z.object({
   email: z.string().email(),
@@ -20,15 +26,21 @@ const FormSchema = z.object({
 
 interface FormComponentProps {
   user: User;
+  formTitle?: string;
+  id?: string;
 }
 
 export type FormType = z.infer<typeof FormSchema>;
 
-const FormComponent: React.FC<FormComponentProps> = ({ user }) => {
+const FormComponent: React.FC<FormComponentProps> = ({
+  user,
+  formTitle,
+  id,
+}) => {
   const [title, setTitle] = useState("");
   const [post, setPost] = useState("");
-
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const dispatch: AppDispatch = useDispatch();
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -36,7 +48,13 @@ const FormComponent: React.FC<FormComponentProps> = ({ user }) => {
     try {
       const userData: FormType = { title, post, email: user.email };
       const validatedForm = FormSchema.parse(userData);
-      dispatch<any>(createNewPost(validatedForm));
+      if (id) {
+        dispatch(updatePost(id, validatedForm));
+        setTitle("");
+        setPost("");
+        return;
+      }
+      dispatch(createNewPost(validatedForm));
       setTitle("");
       setPost("");
     } catch (error) {
@@ -47,13 +65,25 @@ const FormComponent: React.FC<FormComponentProps> = ({ user }) => {
     }
   };
 
+  const handleDelete = (id: string) => {
+    // eslint-disable-next-line no-restricted-globals
+    if (confirm("Delete this post?")) {
+      dispatch(removePost(id));
+      navigate("/");
+    }
+    return;
+  };
+
   return (
     <Box
       component="form"
       onSubmit={handleSubmit}
       sx={{ display: "flex", flexDirection: "column" }}
     >
-      <Typography component={"h4"}>Create new post</Typography>
+      <Typography component={"h4"} textAlign={"center"}>
+        {" "}
+        {formTitle ? formTitle : "Create new post"}
+      </Typography>
       <TextField
         sx={{ margin: "0 0 10px 0" }}
         id="title"
@@ -66,11 +96,26 @@ const FormComponent: React.FC<FormComponentProps> = ({ user }) => {
         id="post"
         minRows={5}
         placeholder="Enter your text..."
-        // label="Post"
         value={post}
         onChange={(e) => setPost(e.target.value)}
       />
-      <Button type="submit">Submit</Button>
+      <Button
+        variant="contained"
+        color="primary"
+        type="submit"
+        sx={{ margin: "5px 0 5px 0" }}
+      >
+        Submit
+      </Button>
+      {id && (
+        <Button
+          variant="contained"
+          color="warning"
+          onClick={handleDelete.bind(null, id)}
+        >
+          Delete post
+        </Button>
+      )}
     </Box>
   );
 };

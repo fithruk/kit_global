@@ -4,12 +4,13 @@ import { getAllPosts } from "../Reducers/PostsReducer/PostsActions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../Reducers/RootReducer/RootReducer";
 import PostComponent from "../PostComponent/PostComponent";
+import { AppDispatch } from "../Reducers/Store/Store";
 
 const PostsComponent = () => {
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const posts = useSelector((state: RootState) => state.postReducer);
   useEffect(() => {
-    dispatch<any>(getAllPosts());
+    dispatch(getAllPosts());
   }, []);
   console.log(posts);
 

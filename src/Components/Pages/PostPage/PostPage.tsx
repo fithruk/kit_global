@@ -7,14 +7,15 @@ import { Container } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Reducers/RootReducer/RootReducer";
 import PostComponent from "../../PostComponent/PostComponent";
+import { AppDispatch } from "../../Reducers/Store/Store";
 
 const PostPage = () => {
   const { id } = useParams();
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const apartPost = useSelector((state: RootState) => state.apartPostReducer);
 
   useEffect(() => {
-    if (id) dispatch<any>(getOnePost(id));
+    if (id) dispatch(getOnePost(id));
   }, []);
 
   return (

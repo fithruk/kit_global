@@ -8,12 +8,12 @@ export interface PostType {
 
 const initialState: PostType[] = [];
 
-interface Action {
+export interface PostAction {
   type: string;
   payload: PostType[];
 }
 
-const postReducer = (state = initialState, action: Action) => {
+const postReducer = (state = initialState, action: PostAction) => {
   switch (action.type) {
     case LOAD_ALL_POSTS:
       return [...state, ...action.payload];

@@ -7,12 +7,12 @@ const initialState: FormType = {
   post: "",
 };
 
-interface ActionType {
+export interface ActionTypeApart {
   type: string;
   payload: FormType;
 }
 
-const apartPostReducer = (state = initialState, action: ActionType) => {
+const apartPostReducer = (state = initialState, action: ActionTypeApart) => {
   switch (action.type) {
     case SET_APART_POST:
       return { ...state, ...action.payload };

@@ -5,8 +5,11 @@ import {
   addNewPost,
   loadAllPosts,
   loadOnePost,
+  updateExistPost,
+  removeExistingPost,
 } from "../../ApiService/ApiService";
 import { FormType } from "../../FormComponent/FormComponent";
+import { PostAction } from "./PostsReducer";
 
 const LOAD_ALL_POSTS = "LOAD_ALL_POSTS";
 const SET_APART_POST = "SET_APART_POST";
@@ -25,12 +28,14 @@ const createNewPost = (userData: FormType) => {
 
 const getAllPosts = () => {
   return async (
-    dispatch: ThunkDispatch<RootState, undefined, AnyAction>,
+    dispatch: ThunkDispatch<RootState, undefined, PostAction>,
     getState: () => RootState
   ) => {
     const posts = await loadAllPosts(getState());
-
-    dispatch({ type: LOAD_ALL_POSTS, payload: posts });
+    if (Array.isArray(posts)) {
+      return dispatch({ type: LOAD_ALL_POSTS, payload: posts });
+    }
+    dispatch({ type: LOAD_ALL_POSTS, payload: [] });
   };
 };
 
@@ -46,6 +51,22 @@ const getOnePost = (id: string) => {
   };
 };
 
+const updatePost = (id: string, userData: FormType) => {
+  return async (
+    dispatch: ThunkDispatch<RootState, undefined, AnyAction>,
+    getState: () => RootState
+  ) => {
+    await updateExistPost(getState(), id, userData);
+    dispatch(getOnePost(id));
+  };
+};
+
+const removePost = (id: string) => {
+  return async (getState: () => RootState) => {
+    await removeExistingPost(getState(), id);
+  };
+};
+
 export {
   LOAD_ALL_POSTS,
   SET_APART_POST,
@@ -53,4 +74,6 @@ export {
   createNewPost,
   getAllPosts,
   getOnePost,
+  updatePost,
+  removePost,
 };
